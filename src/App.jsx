@@ -29,7 +29,7 @@ const Title = styled(({className, children, ...props}) => (
 ))`
 text-decoration: none;
 > * {
-  color: ${blue[500]} !important;
+  color: ${blue[800]} !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -120,7 +120,12 @@ class App extends Component {
       <div style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '24px 0px'}}>
 				{ this.props.clusters[0].tags.map((tag, idx) => {
           return (
-            <WikipediaCard entityName={tag} selected={tag === this.state.focus} onExploreEntity={this.handleExploreEntity.bind(this, tag)} key={`cluster.0.tag.${idx}`}/>
+            <WikipediaCard
+              entityName={tag}
+              selected={tag === this.state.focus}
+              onExploreEntity={this.handleExploreEntity.bind(this, tag)}
+              onCancel={() => this.setState({focus: undefined})}
+            key={`cluster.0.tag.${idx}`}/>
           )
 				})}
       </div>

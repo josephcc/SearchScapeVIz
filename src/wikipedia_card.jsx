@@ -63,7 +63,7 @@ class WikipediaCard extends Component {
 
   render() {
     return (
-      <Card style={{margin: '12px', minWidth: '300px', height: '350px'}}>
+      <Card style={{margin: '12px', minWidth: '300px', height: '350px', background: (this.props.selected === true ? blue[100] : undefined )}}>
         <CardMedia
           style={{height: '125px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center top'}}
           image={this.state.image}
@@ -77,12 +77,19 @@ class WikipediaCard extends Component {
             { this.state.desc.replace(/\s*\([^)]*\)+\s*/, ' ') }
           </Typography>
         </CardContent>
-        { this.state.loaded && (
+        { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>
             <Button onClick={this.props.onExploreEntity} size='small' variant="raised" color="primary">
               See mention
             </Button>
           </CardActions>
+        ) : (
+          <CardActions>
+            <Button onClick={this.props.onCancel} size='small' color="secondary">
+              Cancel
+            </Button>
+          </CardActions>
+        )
         )}
       </Card>
     )

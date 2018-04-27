@@ -12,6 +12,9 @@ import Button from 'material-ui/Button'
 import TextField from 'material-ui/TextField'
 import { SnackbarContent } from 'material-ui/Snackbar'
 
+import AppBar from 'material-ui/AppBar'
+import Tabs, { Tab } from 'material-ui/Tabs'
+
 import Search from '@material-ui/icons/Search'
 import blue from 'material-ui/colors/blue'
 import green from 'material-ui/colors/green'
@@ -61,7 +64,8 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      focus: undefined
+      focus: undefined,
+      selectedTab: 0
     }
   }
 
@@ -108,7 +112,7 @@ class App extends Component {
       index = this.props.table[this.state.focus.toLowerCase()]
     }
     return (<React.Fragment><CssBaseline />
-			<Grid container spacing={8} alignItems='flex-end' style={{padding: '12px 32px 0px 24px'}}>
+			<Grid container spacing={8} alignItems='flex-end' style={{padding: '12px 32px 24px 24px'}}>
 				<Grid item>
 					<Search/>
 				</Grid>
@@ -117,8 +121,26 @@ class App extends Component {
 				</Grid>
 			</Grid>
 
-      <div style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '24px 0px'}}>
-				{ this.props.clusters[0].tags.map((tag, idx) => {
+      
+      <AppBar position="static" color="default">
+				<Tabs
+					value={this.state.selectedTab}
+					onChange={this.handleChange}
+					indicatorColor="secondary"
+					textColor="primary"
+					scrollable
+					scrollButtons="auto"
+				>
+          {this.props.clusters.map((cluster, idx) => {
+            return (<Tab label={
+              cluster.name.replace(/^ *YAGO_YAGO/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '')
+            } onClick={() => this.setState({selectedTab: idx})} key={`clusterTab.${idx}`}/>)
+          })}
+        </Tabs>
+      </AppBar>
+
+      <div style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px'}}>
+				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
           return (
             <WikipediaCard
               entityName={tag}

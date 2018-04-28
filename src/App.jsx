@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import styled from 'styled-components'
+import FlipMove from 'react-flip-move'
 
 import Sentimood from './lib/sentimood.js'
 
@@ -22,6 +23,10 @@ import grey from 'material-ui/colors/grey'
 
 import WikipediaCard from './wikipedia_card.jsx'
 import data from './barcelona.json'
+
+import { uniq, flatten, countBy, sortBy } from 'lodash'
+
+const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now']
 
 const Title = styled(({className, children, ...props}) => (
   <a href={props.url} target='_blank' className={className}>
@@ -73,6 +78,42 @@ class App extends Component {
     console.log(tag)
     this.setState({focus: tag})
 	}
+
+  getComentionCounts(tag) {
+    let index
+    if (tag in this.props.table) {
+      index = this.props.table[tag]
+    } else if (tag.toLowerCase() in this.props.table) {
+      index = this.props.table[tag.toLowerCase()]
+    } else {
+      return []
+    }
+    let winSize = 15
+    let tokens = Object.keys(index).map((bidx) => {
+      let starts = index[bidx]
+      return uniq(starts.map((start) => {
+        let end = start + winSize
+        start = Math.max(0, start - winSize)
+        return this.props.bookmarks[bidx].fulltext
+          .slice(start, end)
+          .map((t) => t.toLowerCase())
+          .filter((t) => {
+            if (t.length < 3)
+              return false
+            if (Stopwords.indexOf(t) >= 0)
+              return false
+            if (t === tag.toLowerCase() || tag.toLowerCase().indexOf(t) >= 0)
+              return false
+            return true
+          })
+      }))
+    })
+    tokens = countBy(flatten(flatten(tokens)))
+    return sortBy(Object.keys(tokens), (t) => -tokens[t]).map((token) => {
+      return [token, tokens[token]]
+    })
+
+  }
 
   getDesc(idx) {
     let bookmark = this.props.bookmarks[idx]
@@ -133,24 +174,25 @@ class App extends Component {
 				>
           {this.props.clusters.map((cluster, idx) => {
             return (<Tab label={
-              cluster.name.replace(/^ *YAGO_YAGO/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '')
+              cluster.name.replace(/^ *YAGO_yago/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '').replace(/_+/g, ' ').trim()
             } onClick={() => this.setState({selectedTab: idx})} key={`clusterTab.${idx}`}/>)
           })}
         </Tabs>
       </AppBar>
 
-      <div style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px'}}>
+      <FlipMove duration={700} easing="ease-in-out" leaveAnimation={'none'} style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
 				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
+          if (this.state.focus === undefined || this.state.focus === tag)
           return (
             <WikipediaCard
               entityName={tag}
               selected={tag === this.state.focus}
               onExploreEntity={this.handleExploreEntity.bind(this, tag)}
               onCancel={() => this.setState({focus: undefined})}
-            key={`cluster.0.tag.${idx}`}/>
+              key={`cluster.${this.state.selectedTab}.${idx}`}/>
           )
 				})}
-      </div>
+      </FlipMove>
 
       <div style={{display: 'flex'}}>
 
@@ -161,6 +203,9 @@ class App extends Component {
                 <SnackbarContent message={`Showing mentions of "${this.state.focus}".`} action={(
                   <Button color="secondary" size="small" onClick={() => this.setState({focus: undefined})}>Cancel</Button>
                 )} />
+              <pre>
+                {JSON.stringify(this.getComentionCounts(this.state.focus))}
+              </pre>
               </Grid>
             )}
             <Grid item xs={12}>

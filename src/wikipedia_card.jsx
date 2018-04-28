@@ -63,7 +63,8 @@ class WikipediaCard extends Component {
 
   render() {
     return (
-      <Card style={{margin: '12px', minWidth: '300px', height: '350px', background: (this.props.selected === true ? blue[100] : undefined )}}>
+      <div key={this.props.key}>
+      <Card style={{margin: '12px', minWidth: '300px', maxWidth: '300px', height: '350px'}}>
         <CardMedia
           style={{height: '125px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center top'}}
           image={this.state.image}
@@ -92,6 +93,7 @@ class WikipediaCard extends Component {
         )
         )}
       </Card>
+      </div>
     )
   }
 }

@@ -20,16 +20,20 @@ import Search from '@material-ui/icons/Search'
 import blue from 'material-ui/colors/blue'
 import green from 'material-ui/colors/green'
 import grey from 'material-ui/colors/grey'
+import deepPurple from 'material-ui/colors/deepPurple'
+import lightBlue from 'material-ui/colors/lightBlue'
 
 import WikipediaCard from './wikipedia_card.jsx'
-//import data from './barcelona.json'
+import TreeMap from './treemap.jsx'
+
+import data from './barcelona.json'
 //import data from './angelina_jolie.json'
 //import data from './obama.json'
-import data from './er.json'
+//import data from './er.json'
 
 import { uniq, flatten, countBy, sortBy } from 'lodash'
 
-const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get']
+const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
 
 const Title = styled(({className, children, ...props}) => (
   <a href={props.url} target='_blank' className={className}>
@@ -129,7 +133,7 @@ class App extends Component {
     } else if (this.state.focus.toLowerCase() in this.props.table && idx in this.props.table[this.state.focus.toLowerCase()]) {
       index = this.props.table[this.state.focus.toLowerCase()][idx]
     }
-    let winSize = 30
+    let winSize = 15
     return (
       <span>
         { index.map((start, idx) => { 
@@ -155,6 +159,30 @@ class App extends Component {
     if (this.state.focus !== undefined) {
       index = this.props.table[this.state.focus.toLowerCase()]
     }
+
+
+    let comentions = {
+      name: '',
+      score: 1,
+      color: lightBlue['A100'],
+      weight: 1,
+      children: []
+    }
+    if (this.state.focus !== undefined) {
+      comentions.children = this.getComentionCounts(this.state.focus)
+        .filter((t) => t[1] >= 2)
+        .slice(0, 9)
+        .map((token_count) => {
+        let token = token_count[0]
+        let count = token_count[1]
+        return {
+          name: token,
+          score: count,
+          weight: count
+        }
+      })
+    }
+
     return (<React.Fragment><CssBaseline />
 			<Grid container spacing={8} alignItems='flex-end' style={{padding: '12px 32px 24px 24px'}}>
 				<Grid item>
@@ -183,7 +211,7 @@ class App extends Component {
         </Tabs>
       </AppBar>
 
-      <FlipMove duration={700} easing="ease-in-out" leaveAnimation={'none'} style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
+      <FlipMove duration={700} easing="ease-in-out" leaveAnimation='none' style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
 				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
           if (this.state.focus === undefined || this.state.focus === tag)
           return (
@@ -196,6 +224,20 @@ class App extends Component {
           )
 				})}
       </FlipMove>
+      <div style={{position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px'}} key='entity_global_viz_container'>
+        <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade'>
+          {this.state.focus !== undefined && (
+            <div key='entity_global_viz_container'>
+              <div style={{color: 'white', fontSize: '1.1em'}}>Related Terms</div>
+              <TreeMap width={200} height={332} transitionDuration={0} customScale={false}
+                labelColor={'black'} fontSize={14} scoreInLabel={false}
+                falseinnerPadding={4} corner={2} stroke={false}
+                style={{}}
+                data={comentions} onItemClick={(event, d) => {}}/>
+            </div>
+          )}
+        </FlipMove>
+      </div>
 
       <div style={{display: 'flex'}}>
 
@@ -206,9 +248,6 @@ class App extends Component {
                 <SnackbarContent message={`Showing mentions of "${this.state.focus}".`} action={(
                   <Button color="secondary" size="small" onClick={() => this.setState({focus: undefined})}>Cancel</Button>
                 )} />
-              <pre>
-                {JSON.stringify(this.getComentionCounts(this.state.focus))}
-              </pre>
               </Grid>
             )}
             <Grid item xs={12}>

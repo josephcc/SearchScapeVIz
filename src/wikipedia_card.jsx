@@ -40,7 +40,7 @@ class WikipediaCard extends Component {
     fetch(url).then( (response) => {
       return response.json()
     }).then((results) => {
-      this.setState({loaded: true, desc: results[2][0]})
+      this.setState({loaded: true, desc: get(results, '[2][0]', '')})
     }).catch((reason) => {
       console.log(reason)
       this.setState({loaded: true, desc: reason})
@@ -64,14 +64,14 @@ class WikipediaCard extends Component {
   render() {
     return (
       <div key={this.props.key}>
-      <Card style={{margin: '12px', minWidth: '300px', maxWidth: '300px', height: '350px'}}>
+      <Card style={{margin: '12px', minWidth: '250px', maxWidth: '250px', height: '350px'}}>
         <CardMedia
-          style={{height: '125px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center top'}}
+          style={{height: '150px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center center'}}
           image={this.state.image}
           title={this.props.entityName}
         />
         <CardContent>
-          <Typography gutterBottom variant='headline' component='h2'>
+          <Typography gutterBottom variant='headline' component='h4'>
             {this.props.entityName}
           </Typography>
           <Typography component='p' style={{height: '80px', overflow: 'hidden', textOverflow: 'ellipsis'}}>

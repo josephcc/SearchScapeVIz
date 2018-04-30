@@ -13,6 +13,7 @@ import grey from 'material-ui/colors/grey'
 
 import { get } from 'lodash'
 
+import {Link} from 'react-router-dom'
 
 class WikipediaCard extends Component {
   static defaultProps = {
@@ -80,15 +81,19 @@ class WikipediaCard extends Component {
         </CardContent>
         { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>
-            <Button onClick={this.props.onExploreEntity} size='small' variant="raised" color="primary">
-              See mention
-            </Button>
+            <Link to={`${this.props.location.pathname}/tag/${this.props.entityName}`}>
+              <Button size='small' variant="raised" color="primary">
+                See mention
+              </Button>
+            </Link>
           </CardActions>
         ) : (
           <CardActions>
-            <Button onClick={this.props.onCancel} size='small' color="secondary">
-              Cancel
-            </Button>
+            <Link to={this.props.location.pathname}>
+              <Button size='small' color="secondary">
+                Cancel
+              </Button>
+            </Link>
           </CardActions>
         )
         )}

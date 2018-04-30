@@ -43,7 +43,7 @@ class WikipediaCard extends Component {
       this.setState({loaded: true, desc: get(results, '[2][0]', '')})
     }).catch((reason) => {
       console.log(reason)
-      this.setState({loaded: true, desc: reason})
+      this.setState({loaded: true, desc: reason.toString()})
       throw reason
     });
 
@@ -71,7 +71,7 @@ class WikipediaCard extends Component {
           title={this.props.entityName}
         />
         <CardContent>
-          <Typography gutterBottom variant='headline' component='h4'>
+          <Typography gutterBottom variant='headline' component='h4' style={{whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden'}}>
             {this.props.entityName}
           </Typography>
           <Typography component='p' style={{height: '80px', overflow: 'hidden', textOverflow: 'ellipsis'}}>

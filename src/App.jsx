@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import FlipMove from 'react-flip-move'
 
-import Sentimood from './lib/sentimood.js'
+import { Sentimood, AFINN } from './lib/sentimood.js'
 
 import CssBaseline from 'material-ui/CssBaseline'
 import Grid from 'material-ui/Grid'
@@ -17,6 +17,7 @@ import AppBar from 'material-ui/AppBar'
 import Tabs, { Tab } from 'material-ui/Tabs'
 
 import Search from '@material-ui/icons/Search'
+import red from 'material-ui/colors/red'
 import blue from 'material-ui/colors/blue'
 import green from 'material-ui/colors/green'
 import grey from 'material-ui/colors/grey'
@@ -25,14 +26,16 @@ import lightBlue from 'material-ui/colors/lightBlue'
 
 import WikipediaCard from './wikipedia_card.jsx'
 import TreeMap from './treemap.jsx'
+import BarChart from './bar_chart.jsx'
 
-import data from './barcelona.json'
+//import data from './barcelona.json'
 //import data from './angelina_jolie.json'
 //import data from './obama.json'
-//import data from './er.json'
+import data from './er.json'
 
 import { uniq, flatten, countBy, sortBy } from 'lodash'
 
+const WinSize = 15
 const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
 
 const Title = styled(({className, children, ...props}) => (
@@ -67,7 +70,6 @@ text-decoration: none;
 }
 `
 
-
 class App extends Component {
   static defaultProps = {
     ...data
@@ -95,12 +97,11 @@ class App extends Component {
     } else {
       return []
     }
-    let winSize = 15
     let tokens = Object.keys(index).map((bidx) => {
       let starts = index[bidx]
       return uniq(starts.map((start) => {
-        let end = start + winSize
-        start = Math.max(0, start - winSize)
+        let end = start + WinSize
+        start = Math.max(0, start - WinSize)
         return this.props.bookmarks[bidx].fulltext
           .slice(start, end)
           .map((t) => t.toLowerCase())
@@ -122,31 +123,70 @@ class App extends Component {
 
   }
 
+  _getIndex(tag, idx) {
+      let index = []
+      if (tag in this.props.table && idx in this.props.table[tag]) {
+        index = this.props.table[tag][idx]
+      } else if (tag.toLowerCase() in this.props.table && idx in this.props.table[tag.toLowerCase()]) {
+        index = this.props.table[tag.toLowerCase()][idx]
+      }
+    return index
+  }
+
+  getSentiment() {
+    if (this.state.focus === undefined) {
+      return undefined
+    }
+
+    let positives = []
+    let negatives = []
+    this.props.bookmarks.forEach((bookmark, idx) => {
+      let index = this._getIndex(this.state.focus, idx)
+      index.map((start, idx) => { 
+        if (idx !== 0 && start - index[idx-1] > WinSize) {
+          return
+        }
+        let sentiment = Sentimood.analyze(bookmark.fulltext.slice(Math.max(0, start - WinSize), start + WinSize).join(' '))
+        positives = positives.concat(sentiment.positive.words)
+        negatives = negatives.concat(sentiment.negative.words)
+      })
+    })
+    positives = countBy(positives)
+    positives = Object.keys(positives).map((token) => {
+      let count = positives[token]
+      return [token, count * AFINN[token]]
+    })
+    positives = sortBy(positives, (p) => -p[1])
+
+    negatives = countBy(negatives)
+    negatives = Object.keys(negatives).map((token) => {
+      let count = negatives[token]
+      return [token, count * AFINN[token]]
+    })
+    negatives = sortBy(negatives, (p) => p[1])
+
+    return [positives, negatives]
+
+  }
+
   getDesc(idx) {
     let bookmark = this.props.bookmarks[idx]
     if (this.state.focus === undefined) {
       return bookmark.desc
     }
-    let index = []
-    if (this.state.focus in this.props.table && idx in this.props.table[this.state.focus]) {
-      index = this.props.table[this.state.focus][idx]
-    } else if (this.state.focus.toLowerCase() in this.props.table && idx in this.props.table[this.state.focus.toLowerCase()]) {
-      index = this.props.table[this.state.focus.toLowerCase()][idx]
-    }
-    let winSize = 15
+    let index = this._getIndex(this.state.focus, idx)
+
     return (
       <span>
         { index.map((start, idx) => { 
-          if (idx !== 0 && start - index[idx-1] > winSize) {
+          if (idx !== 0 && start - index[idx-1] > WinSize) {
             return
           }
-          let sentiment = Sentimood.analyze(bookmark.fulltext.slice(Math.max(0, start - winSize), start+winSize).join(' '))
           return (
             <span style={{display: 'block', marginBottom: '8px'}} key={`mentions.${start}.${idx}`}>
-              <span>...{bookmark.fulltext.slice(Math.max(0, start - winSize), index[0]).join(' ')}</span>
+              <span>...{bookmark.fulltext.slice(Math.max(0, start - WinSize), index[0]).join(' ')}</span>
               <span style={{color: 'red'}}> {bookmark.fulltext[start]} </span>
-              <span>{bookmark.fulltext.slice(start - 1, start + winSize).join(' ')}...</span>
-              <pre>{JSON.stringify(sentiment, null, 2)}</pre>
+              <span>{bookmark.fulltext.slice(start - 1, start + WinSize).join(' ')}...</span>
             </span>
           )
       })}
@@ -181,6 +221,17 @@ class App extends Component {
           weight: count
         }
       })
+    }
+
+    let sentiment = this.getSentiment()
+    let max = 0
+    if (this.state.focus !== undefined) {
+      sentiment = sentiment.map((s) => s.map((token_score) => {
+        let token = token_score[0]
+        let score = token_score[1]
+        max = Math.max(Math.abs(score), max)
+        return {x: token, y: Math.abs(score)}
+      }))
     }
 
     return (<React.Fragment><CssBaseline />
@@ -225,15 +276,30 @@ class App extends Component {
 				})}
       </FlipMove>
       <div style={{position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px'}} key='entity_global_viz_container'>
-        <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade'>
+        <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade' style={{display: 'flex'}}>
           {this.state.focus !== undefined && (
-            <div key='entity_global_viz_container'>
+            <div key='entity_comention_container'>
               <div style={{color: 'white', fontSize: '1.1em'}}>Related Terms</div>
               <TreeMap width={200} height={332} transitionDuration={0} customScale={false}
                 labelColor={'black'} fontSize={14} scoreInLabel={false}
                 falseinnerPadding={4} corner={2} stroke={false}
                 style={{}}
                 data={comentions} onItemClick={(event, d) => {}}/>
+            </div>
+          )}
+          {this.state.focus !== undefined && (
+            <div key='entity_sentiment_container' style={{marginLeft: '24px'}}>
+              <div style={{color: 'white', fontSize: '1.1em'}}>Sentiment</div>
+              <div>
+                <BarChart width={30 * sentiment[0].length} height={160} color={red[200]}
+                  max={max}
+                  data={sentiment[0]} onItemClick={(event, d) => {}}/>
+                <div style={{transform: 'scaleY(-1)'}}>
+                  <BarChart width={30 * sentiment[1].length} height={160} color={green[200]}
+                    max={max}
+                    data={sentiment[1]} onItemClick={(event, d) => {}}/>
+                </div>
+              </div>
             </div>
           )}
         </FlipMove>

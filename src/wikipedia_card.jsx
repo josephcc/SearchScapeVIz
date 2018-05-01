@@ -42,7 +42,8 @@ class WikipediaCard extends Component {
     this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this)
     this.state = {
       normalizedEntityName: props.entityName,
-      image: 'http://thecatapi.com/api/images/get?format=src&type=gif',
+      //image: 'http://thecatapi.com/api/images/get?format=src&type=gif',
+      image: 'https://i.imgur.com/yhEuukj.gif',
       desc: 'loading...',
       loaded: false
     }

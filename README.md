@@ -2,12 +2,14 @@ SearchScape allows you to explore the distribution and sentiment of different en
 
 ## Demo Version
 
-You can find a deployed version of the project [here](http://joseph.nlpweb.org/SearchScapeVIz). With this, you can explore 4 different searches that we've pre-compiled with the visualization interface:
+You can find a deployed version of the project [here](http://joseph.nlpweb.org/SearchScapeVIz). With this, you can explore 6 different searches that we've pre-compiled with the visualization interface:
 
 - [Day trips from Barcelona](http://joseph.nlpweb.org/SearchScapeVIz/barcelona)
 - [Angelina Jolie](http://joseph.nlpweb.org/SearchScapeVIz/angelina)
 - [Barack Obama family tree](http://joseph.nlpweb.org/SearchScapeVIz/obama)
 - [tv show ER](http://joseph.nlpweb.org/SearchScapeVIz/er)
+- [harry potter](http://joseph.nlpweb.org/SearchScapeVIz/harry)
+- [2016 presidential election](http://joseph.nlpweb.org/SearchScapeVIz/election)
 
 ## Repository Contents
 
@@ -16,6 +18,10 @@ This application was built using [React](reactjs.org) and [D3](d3js.org). React 
 #### Process Slides
 
 The process slides can be found in the root of the repository [process.pdf](process.pdf)
+
+#### Video
+
+The video giving a brief overview of how SearchScape works can be found [here](video.mp4)
 
 #### Repo Structure
 

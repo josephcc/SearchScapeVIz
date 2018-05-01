@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import Card, { CardContent, CardActions, CardMedia } from 'material-ui/Card'
 import Typography from 'material-ui/Typography'
 import Button from 'material-ui/Button'
+import SentimentBubble from './sentiment_bubble'
 
 import blue from 'material-ui/colors/blue'
 import lightBlue from 'material-ui/colors/lightBlue'
@@ -20,6 +21,16 @@ import {Link} from 'react-router-dom'
 const SimpleLink = styled(Link)`
   color: inherit;
   text-decoration: inherit;
+`
+
+const SentimentContainer = styled.div`
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 80px;
+  padding-left: 20px;
 `
 
 class WikipediaCard extends Component {
@@ -99,22 +110,24 @@ class WikipediaCard extends Component {
           </Typography>
 
         </CardContent>
-        { this.state.loaded && ( this.props.selected !== true ? (
-          <CardActions>
+        <CardActions style={{justifyContent: 'space-between'}}>
+          { this.state.loaded && ( this.props.selected !== true ? (
             <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}/${this.props.entityName}`}>
               <Button size='small' variant="raised" style={{backgroundColor: lightBlue['A700'], color: blueGrey['50'], textTransform: 'none'}}>
                 In {Math.round(100*this.props.percentageBar)}% of the results
               </Button>
-            </SimpleLink>
-          </CardActions>
-        ) : (
-          <CardActions>
+            </SimpleLink> ) : (
             <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
               <Button size='small' color="secondary">
                 Show all
               </Button>
-            </SimpleLink>
-          </CardActions>
+            </SimpleLink>)
+          )}
+          <SentimentContainer style={{margin: '-20px 0px 0px 0px'}}>
+            <h6 style={{margin: 0, paddingBottom: 5}}>Perception</h6>
+            <SentimentBubble polarity={this.props.sentiment.polarity} max={this.props.maxPolarity} min={this.props.minPolarity} positive={this.props.sentiment.positive} negative={this.props.sentiment.negative} name={this.props.entityName}/>
+          </SentimentContainer>
+        </CardActions>
         )
         )}
       </Card>

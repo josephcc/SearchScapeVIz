@@ -12,6 +12,8 @@ import Typography from 'material-ui/Typography'
 import Button from 'material-ui/Button'
 import TextField from 'material-ui/TextField'
 import { SnackbarContent } from 'material-ui/Snackbar'
+import SelectField from 'material-ui/Select';
+import MenuItem from 'material-ui/Menu/MenuItem';
 
 import AppBar from 'material-ui/AppBar'
 import Tabs, { Tab } from 'material-ui/Tabs'
@@ -29,7 +31,7 @@ import TreeMap from './treemap.jsx'
 import BarChart from './bar_chart.jsx'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
-import { uniq, flatten, countBy, sortBy, zipObject, get } from 'lodash'
+import { uniq, flatten, countBy, sortBy, zipObject, get, reduce, forEach} from 'lodash'
 
 const WinSize = 20
 const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
@@ -124,9 +126,19 @@ class App extends Component {
       }
     return index
   }
+  
+  _getIndexAll(tag) {
+    let index = []
+    if (tag in this.props.table) {
+      index = this.props.table[tag]
+    } else if (tag.toLowerCase() in this.props.table) {
+      index = this.props.table[tag.toLowerCase()]
+    }
+    return index
+  }
 
-  getSentiment() {
-    if (this.props.focus === undefined) {
+  getSentiment(entity) {
+    if (!entity) {
       return undefined
     }
 
@@ -140,7 +152,7 @@ class App extends Component {
     let _positives = []
     let _negatives = []
     this.props.bookmarks.forEach((bookmark, idx) => {
-      let index = this._getIndex(this.props.focus, idx)
+      let index = this._getIndex(entity, idx)
       index.map((start, idx) => { 
         if (idx !== 0 && start - index[idx-1] > WinSize) {
           return
@@ -261,10 +273,15 @@ class App extends Component {
       })
     }
 
+    let sentimentMap = {};
+    this.props.clusters[this.props.tab].tags.forEach(tag => {
+      sentimentMap[tag] = this.getSentiment(tag);
+    })
+    
     let sentiment
     let max = 0
     if (this.props.focus !== undefined) {
-      sentiment = this.getSentiment()
+      sentiment = sentimentMap[this.props.focus]
       max = sentiment[2]
       sentiment = sentiment.slice(0,2).map((s) => s.map((token_score) => {
         let token = token_score[0]
@@ -274,6 +291,19 @@ class App extends Component {
       }))
     }
 
+    let maxPolarity = 0;
+    let minPolarity = Infinity;
+    let totalSentimentMap = {}
+    forEach(sentimentMap, (sentiment, tag) => {
+      let positive = reduce(sentiment[0], (acc, val) => acc + Math.abs(val[1]), 0)
+      let negative = reduce(sentiment[1], (acc, val) => acc + Math.abs(val[1]), 0)
+      let mentions = reduce(this._getIndexAll(tag), (acc, doc) => acc + doc.length, 0) || 0
+      let polarity = ((positive + negative) / mentions) || 0;
+      
+      maxPolarity = Math.max(maxPolarity, polarity)
+      minPolarity = Math.min(minPolarity, polarity)
+      totalSentimentMap[tag] = {positive, negative, mentions, polarity}
+    }, 0)
 
     return (<React.Fragment><CssBaseline />
 			<Grid container spacing={8} alignItems='flex-end' style={{padding: '12px 32px 24px 24px'}}>
@@ -281,7 +311,20 @@ class App extends Component {
 					<Search/>
 				</Grid>
 				<Grid item xs={4}>
-					<TextField id='input-with-icon-grid' label='Search the Web' value={this.props.query} style={{width: '100%'}} disabled/>
+                  <SelectField value={this.props.dataKey} onChange={e => this.props.history.push(`/${e.target.value}`)}>
+                    <MenuItem value="obama">
+                      Obama Family
+                    </MenuItem>
+                    <MenuItem value="barcelona">
+                      Barcelona Daytrips
+                    </MenuItem>
+                    <MenuItem value="er">
+                      ER TV Show
+                    </MenuItem>
+                    <MenuItem value="angelina">
+                      Angelina Jolie
+                    </MenuItem>
+                  </SelectField>
 				</Grid>
 			</Grid>
 
@@ -289,7 +332,6 @@ class App extends Component {
       <AppBar position="static" color="default">
 				<Tabs
 					value={this.props.tab}
-					onChange={this.handleChange}
 					indicatorColor="secondary"
 					textColor="primary"
 					scrollable
@@ -315,6 +357,9 @@ class App extends Component {
               percentageBar = { Object.keys(this.props.table[tag]).length / this.props.bookmarks.length}
               selected={tag === this.props.focus}
               dataKey={this.props.dataKey}
+              maxPolarity={maxPolarity}
+              minPolarity={minPolarity}
+              sentiment={totalSentimentMap[tag]}
               tab={this.props.tab}
               onCancel={() => this.setState({focus: undefined})}
               key={`cluster.${this.props.tab}.${idx}`}/>

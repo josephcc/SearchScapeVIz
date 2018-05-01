@@ -1,8 +1,21 @@
 SearchScape allows you to explore the distribution and sentiment of different entities (i.e. people, places, etc.) from a set of search results. This was built for CMU's Data Visualization class with Adam Perer. 
 
+## Demo Version
+
+You can find a deployed version of the project [here](http://joseph.nlpweb.org/SearchScapeVIz). With this, you can explore 4 different searches that we've pre-compiled with the visualization interface:
+
+- [Day trips from Barcelona](http://joseph.nlpweb.org/SearchScapeVIz/barcelona)
+- [Angelina Jolie](http://joseph.nlpweb.org/SearchScapeVIz/angelina)
+- [Barack Obama family tree](http://joseph.nlpweb.org/SearchScapeVIz/obama)
+- [tv show ER](http://joseph.nlpweb.org/SearchScapeVIz/er)
+
 ## Repository Contents
 
 This application was built using [React](reactjs.org) and [D3](d3js.org). React provides interactivity support, while D3 serves as the main way we perform visualization -- specifically the sentiment, frequency and co-occurrence diagrams.
+
+#### Process Slides
+
+The process slides can be found in the root of the repository [process.pdf](process.pdf)
 
 #### Repo Structure
 

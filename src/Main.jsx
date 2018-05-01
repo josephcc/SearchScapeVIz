@@ -18,7 +18,7 @@ const queries = {
 export default class Main extends React.Component {
   
   render() {
-    return <Router>
+    return <Router basename={process.env.PUBLIC_URL || '/'}>
       <Switch>
         <Route path={`/:data(${Object.keys(data).join("|")})/:tab?/:tag?`} render={props => {
           let focus = props.match.params.tag

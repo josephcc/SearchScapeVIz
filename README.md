@@ -13,7 +13,7 @@ You can find a deployed version of the project [here](http://joseph.nlpweb.org/S
 
 ## Repository Contents
 
-This application was built using [React](reactjs.org) and [D3](d3js.org). React provides interactivity support, while D3 serves as the main way we perform visualization -- specifically the sentiment, frequency and co-occurrence diagrams.
+This application was built using [React](http://reactjs.org) and [D3](http://d3js.org). React provides interactivity support, while D3 serves as the main way we perform visualization -- specifically the sentiment, frequency and co-occurrence diagrams.
 
 #### Process Slides
 
@@ -25,11 +25,11 @@ The video giving a brief overview of how SearchScape works is [on youtube](https
 
 #### Repo Structure
 
-All code and data in the `/src` directory are our own work, while any linked libraries can be found in the `package.json` file. The main entry point into the application is the `src/index.js` file, and the 4 different datasets we generated and use are found in the `src/data` directory. 
+All code and data in the [/src](src) directory are our own work, while any linked libraries can be found in the [package.json](package.json) file. The main entry point into the application is the [src/index.js](src/index.js) file, and the 4 different datasets we generated and use are found in the [src/data](src/data) directory. 
 
 #### Running Locally
 
-You can run the application locally with just a few commands. First, ensure you have [Node.js](nodejs.org) installed on your machine. Then, from in the repository directory:
+You can run the application locally with just a few commands. First, ensure you have [Node.js](http://nodejs.org) installed on your machine. Then, from in the repository directory:
 
 1. Install react-scripts --
 `npm install -g react-scripts`

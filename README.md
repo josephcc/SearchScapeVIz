@@ -21,7 +21,7 @@ The process slides can be found in the root of the repository [slides.pdf](slide
 
 #### Video
 
-The video giving a brief overview of how SearchScape works is in the root as well [video.mp4](video.mp4)
+The video giving a brief overview of how SearchScape works is [on youtube](https://www.youtube.com/watch?v=tiyLoPEhHiE&feature=youtu.be)
 
 #### Repo Structure
 

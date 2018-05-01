@@ -17,11 +17,11 @@ This application was built using [React](reactjs.org) and [D3](d3js.org). React 
 
 #### Process Slides
 
-The process slides can be found in the root of the repository [process.pdf](process.pdf)
+The process slides can be found in the root of the repository [slides.pdf](slides.pdf)
 
 #### Video
 
-The video giving a brief overview of how SearchScape works can be found [here](video.mp4)
+The video giving a brief overview of how SearchScape works is in the root as well [video.mp4](video.mp4)
 
 #### Repo Structure
 

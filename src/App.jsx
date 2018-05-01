@@ -215,13 +215,14 @@ class App extends Component {
   }
 
   getDesc(idx, limit) {
+    let _limit = limit
     let bookmark = this.props.bookmarks[idx]
     if (this.props.focus === undefined) {
       return bookmark.desc
     }
     let index = this._getIndex(this.props.focus, idx)
 
-    return (
+    let out = (
       <span>
         { index.map((start, idx) => { 
           if (idx !== 0 && start - index[idx-1] > WinSize) {
@@ -229,6 +230,12 @@ class App extends Component {
           }
           if (limit < 0) {
             return
+          }
+          if (this.state.comention != undefined) {
+            let tokens = bookmark.fulltext.slice(Math.max(0, start - WinSize), start + WinSize)
+            if(tokens.map((t) => t.toLowerCase()).indexOf(this.state.comention) < 0) {
+              return
+            }
           }
           limit = limit - 1
           return (
@@ -241,6 +248,10 @@ class App extends Component {
       })}
       </span>
     )
+    if (limit === _limit) {
+      return
+    }
+    return out
   }
 
   render() {
@@ -423,8 +434,17 @@ class App extends Component {
                   message={`Showing ${Object.keys(this.props.table[this.props.focus]).length} (${Math.round(100*Object.keys(this.props.table[this.props.focus]).length/this.props.bookmarks.length)}%) results that mentioned "${this.props.focus}"`}
                   action={(
                     <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
-                      <Button color="secondary" size="small">Show All</Button>
+                      <Button color="secondary" size="small" onClick={() => this.setState({comention: undefined})}>Show All</Button>
                     </SimpleLink>
+                  )} />
+              </Grid>
+            )}
+            { this.state.comention !== undefined && (
+              <Grid item xs={12}>
+                <SnackbarContent
+                  message={`Showing results that also mentioned ${this.state.comention}`}
+                  action={(
+                    <Button color="secondary" size="small" onClick={() => this.setState({comention: undefined})}>Cancel</Button>
                   )} />
               </Grid>
             )}

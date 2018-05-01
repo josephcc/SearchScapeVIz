@@ -10,6 +10,8 @@ const NoMatch = ({ location }) => (
       <li><Link to="/barcelona">Day trips from Barcelona</Link></li>
       <li><Link to="/er">tv show ER</Link></li>
       <li><Link to="/angelina">Angelina Jolie</Link></li>
+      <li><Link to="/harry">Harry Potter</Link></li>
+      <li><Link to="/election">2016 presidential election</Link></li>
     </ul>
   </div>
 )

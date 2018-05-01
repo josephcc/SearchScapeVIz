@@ -7,13 +7,17 @@ import barcelona from './data/barcelona.json'
 import angelina from './data/angelina_jolie.json'
 import obama from './data/obama.json'
 import er from './data/er.json'
+import harry from './data/harry_potter.json'
+import election from './data/election.json'
 
-const data = {barcelona, angelina, obama, er}
+const data = {barcelona, angelina, obama, er, harry, election}
 const queries = {
   barcelona: "Day trips from Barcelona",
   angelina: "Angelina Jolie",
   obama: "Barack Obama family tree",
-  er: "tv show ER"
+  er: "tv show ER",
+  harry: "Harry Potter",
+  election: "2016 presidential election"
 }
 export default class Main extends React.Component {
   

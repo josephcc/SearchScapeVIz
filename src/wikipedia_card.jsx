@@ -111,7 +111,7 @@ class WikipediaCard extends Component {
           <CardActions>
             <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
               <Button size='small' color="secondary">
-                Cancel
+                Show all
               </Button>
             </SimpleLink>
           </CardActions>

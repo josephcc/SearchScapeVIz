@@ -202,7 +202,7 @@ class App extends Component {
     return [positives, negatives, max]
   }
 
-  getDesc(idx) {
+  getDesc(idx, limit) {
     let bookmark = this.props.bookmarks[idx]
     if (this.props.focus === undefined) {
       return bookmark.desc
@@ -215,6 +215,10 @@ class App extends Component {
           if (idx !== 0 && start - index[idx-1] > WinSize) {
             return
           }
+          if (limit < 0) {
+            return
+          }
+          limit = limit - 1
           return (
             <span style={{display: 'block', marginBottom: '8px'}} key={`mentions.${start}.${idx}`}>
               <span>...{bookmark.fulltext.slice(Math.max(0, start - WinSize), index[0]).join(' ')}</span>
@@ -359,21 +363,26 @@ class App extends Component {
       </div>
 
       <div style={{display: 'flex'}}>
-
         <div style={{padding: '32px', maxWidth: '600px'}}>
           <Grid container spacing={24}>
             { this.props.focus !== undefined && (
               <Grid item xs={12}>
-                <SnackbarContent message={`Showing mentions of "${this.props.focus}".`} action={(
-                  <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
-                    <Button color="secondary" size="small">Cancel</Button>
-                  </SimpleLink>
-                )} />
+                <SnackbarContent
+                  message={`Showing ${Object.keys(this.props.table[this.props.focus]).length} (${Math.round(100*Object.keys(this.props.table[this.props.focus]).length/this.props.bookmarks.length)}%) results that mentioned "${this.props.focus}"`}
+                  action={(
+                    <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
+                      <Button color="secondary" size="small">Show All</Button>
+                    </SimpleLink>
+                  )} />
               </Grid>
             )}
             <Grid item xs={12}>
               { this.props.bookmarks.map((bookmark, idx) => {
                 if (index !== undefined && !(idx in index)) {
+                  return
+                }
+                let desc = this.getDesc(idx, 3)
+                if (desc === undefined) {
                   return
                 }
                 return (
@@ -382,7 +391,7 @@ class App extends Component {
                       <Title url={bookmark.url}>{bookmark.title}</Title>
                       <Url url={bookmark.url}/>
                       <Typography component='p' style={{marginTop: '12px'}}>
-                        { this.getDesc(idx) }
+                        { desc }
                       </Typography>
                     </CardContent>
                   </Card>

@@ -8,6 +8,8 @@ import Typography from 'material-ui/Typography'
 import Button from 'material-ui/Button'
 
 import blue from 'material-ui/colors/blue'
+import lightBlue from 'material-ui/colors/lightBlue'
+import blueGrey from 'material-ui/colors/blueGrey'
 import green from 'material-ui/colors/green'
 import grey from 'material-ui/colors/grey'
 
@@ -75,9 +77,8 @@ class WikipediaCard extends Component {
       <div key={this.props.key} style={{zIndex: '999'}}>
 
       <Card style={{margin: '12px', minWidth: '250px', maxWidth: '250px', height: '350px'}}>
-        <div style={{background:'steelblue', width: '10px', height: '350px', position: 'absolute'}}>
-          <div style={{ background: "lightgray", height: (1 - this.props.percentageBar)*350}}> 
-
+        <div style={{background: lightBlue['A700'], width: '10px', height: '350px', position: 'absolute'}}>
+          <div style={{ background: blueGrey['200'], height: (1 - this.props.percentageBar)*350}}> 
           </div>
         </div>
 
@@ -101,8 +102,8 @@ class WikipediaCard extends Component {
         { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>
             <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}/${this.props.entityName}`}>
-              <Button size='small' variant="raised" color="primary">
-                See mention
+              <Button size='small' variant="raised" style={{backgroundColor: lightBlue['A700'], color: blueGrey['50'], textTransform: 'none'}}>
+                In {Math.round(100*this.props.percentageBar)}% of the results
               </Button>
             </SimpleLink>
           </CardActions>
@@ -110,7 +111,7 @@ class WikipediaCard extends Component {
           <CardActions>
             <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
               <Button size='small' color="secondary">
-                Cancel
+                Show all
               </Button>
             </SimpleLink>
           </CardActions>

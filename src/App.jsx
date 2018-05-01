@@ -31,7 +31,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import { uniq, flatten, countBy, sortBy, zipObject, get } from 'lodash'
 
-const WinSize = 15
+const WinSize = 20
 const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
 
 const Title = styled(({className, children, ...props}) => (
@@ -202,7 +202,7 @@ class App extends Component {
     return [positives, negatives, max]
   }
 
-  getDesc(idx) {
+  getDesc(idx, limit) {
     let bookmark = this.props.bookmarks[idx]
     if (this.props.focus === undefined) {
       return bookmark.desc
@@ -215,6 +215,10 @@ class App extends Component {
           if (idx !== 0 && start - index[idx-1] > WinSize) {
             return
           }
+          if (limit < 0) {
+            return
+          }
+          limit = limit - 1
           return (
             <span style={{display: 'block', marginBottom: '8px'}} key={`mentions.${start}.${idx}`}>
               <span>...{bookmark.fulltext.slice(Math.max(0, start - WinSize), index[0]).join(' ')}</span>
@@ -317,7 +321,7 @@ class App extends Component {
           )
 				})}
       </FlipMove>
-      <div style={{position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px'}} key='entity_global_viz_container'>
+      <div style={{display: (this.props.focus === undefined ? 'none' : 'block'), position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px', width: 'calc(100vw - 300px)', overflow: 'hidden'}} key='entity_global_viz_container'>
         <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade' style={{display: 'flex'}}>
           {this.props.focus !== undefined && (
             <div key='entity_comention_container'>
@@ -359,21 +363,26 @@ class App extends Component {
       </div>
 
       <div style={{display: 'flex'}}>
-
         <div style={{padding: '32px', maxWidth: '600px'}}>
           <Grid container spacing={24}>
             { this.props.focus !== undefined && (
               <Grid item xs={12}>
-                <SnackbarContent message={`Showing mentions of "${this.props.focus}".`} action={(
-                  <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
-                    <Button color="secondary" size="small">Cancel</Button>
-                  </SimpleLink>
-                )} />
+                <SnackbarContent
+                  message={`Showing ${Object.keys(this.props.table[this.props.focus]).length} (${Math.round(100*Object.keys(this.props.table[this.props.focus]).length/this.props.bookmarks.length)}%) results that mentioned "${this.props.focus}"`}
+                  action={(
+                    <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
+                      <Button color="secondary" size="small">Show All</Button>
+                    </SimpleLink>
+                  )} />
               </Grid>
             )}
             <Grid item xs={12}>
               { this.props.bookmarks.map((bookmark, idx) => {
                 if (index !== undefined && !(idx in index)) {
+                  return
+                }
+                let desc = this.getDesc(idx, 3)
+                if (desc === undefined) {
                   return
                 }
                 return (
@@ -382,7 +391,7 @@ class App extends Component {
                       <Title url={bookmark.url}>{bookmark.title}</Title>
                       <Url url={bookmark.url}/>
                       <Typography component='p' style={{marginTop: '12px'}}>
-                        { this.getDesc(idx) }
+                        { desc }
                       </Typography>
                     </CardContent>
                   </Card>

@@ -16,6 +16,7 @@ export default class BarChart extends React.Component {
   static defaultProps = {
     width: 700,
     height: 300,
+    mirrored: false
   }
 
   constructor(props) {
@@ -92,11 +93,36 @@ export default class BarChart extends React.Component {
       .enter().append("text")
       .merge(this.labels)
       .attr("class", "label hoverPointer")
-      .attr("x", (d) => this.x(d.x) + (this.x.bandwidth()/2) + 4)
-      .attr("y", height - 4)
+      .attr("x", (d) => {
+        if (this.props.mirrored !== true) {
+          return this.x(d.x) + (this.x.bandwidth()/2) + 4
+        } else {
+          return this.props.height + (this.x(d.x) + (this.x.bandwidth()/2) + 4)
+        }
+      })
+      .attr("y", (d) => {
+        if (this.props.mirrored !== true) {
+          return 10
+        } else {
+          return height - 10
+        }
+      })
+      .attr("text-anchor", (d) => {
+        if (this.props.mirrored !== true) {
+          return 'end'
+        } else {
+          return 'inherent'
+        }
+      })
       .attr('font-weight', 'bold')
       .attr('fill', 'white')
-      .attr("transform", (d) => `rotate(-90 ${this.x(d.x) + (this.x.bandwidth()/2) + 4} ${height - 4})`)
+      .attr("transform", (d) => {
+        if (this.props.mirrored !== true) {
+          return `rotate(-90 ${this.x(d.x) + (this.x.bandwidth()/2) + 4} ${10})`
+        } else {
+          return `scale(1,-1) rotate(-90 ${this.x(d.x) + (this.x.bandwidth()/2) + 4} ${height - 10})`
+        }
+      })
       .text((d) => d.x)
 
   }

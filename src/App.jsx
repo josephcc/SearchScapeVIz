@@ -353,6 +353,7 @@ class App extends Component {
                   data={sentiment[0]} onClick={(event, d) => {}}/>
                 <div style={{transform: 'scaleY(-1)'}}>
                   <BarChart width={45 * sentiment[1].length} height={160} color={red[200]}
+                    mirrored={true}
                     max={max}
                     data={sentiment[1]} onClick={(event, d) => {}}/>
                 </div>

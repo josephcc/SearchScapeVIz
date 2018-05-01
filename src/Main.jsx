@@ -24,12 +24,12 @@ export default class Main extends React.Component {
   render() {
     return <Router basename={process.env.PUBLIC_URL || '/'}>
       <Switch>
-        <Route path={`/:data(${Object.keys(data).join("|")})/:tab?/:tag?`} render={props => {
+        <Route path={`/:data?/:tab?/:tag?`} render={props => {
           let focus = props.match.params.tag
           let tab = props.match.params.tab || 0     
-          let dataSet = props.match.params.data
+          let dataSet = props.match.params.data || 'barcelona'
           
-          return <App {...data[dataSet]} {...props} focus={focus} tab={tab} dataKey={props.match.params.data} query={queries[dataSet]}/>
+          return <App {...data[dataSet]} {...props} focus={focus} tab={tab} dataKey={dataSet} query={queries[dataSet]}/>
         }}/>
         <Route component={NoMatch} />
       </Switch>

@@ -29,7 +29,7 @@ import TreeMap from './treemap.jsx'
 import BarChart from './bar_chart.jsx'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
-import { uniq, flatten, countBy, sortBy } from 'lodash'
+import { uniq, flatten, countBy, sortBy, zipObject, get } from 'lodash'
 
 const WinSize = 15
 const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
@@ -71,7 +71,9 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedTab: 0
+      selectedTab: 0,
+      comention: undefined,
+      comentionHover: undefined
     }
   }
 
@@ -107,7 +109,6 @@ class App extends Component {
     return sortBy(Object.keys(tokens), (t) => -tokens[t]).map((token) => {
       return [token, tokens[token]]
     })
-
   }
 
   _getIndex(tag, idx) {
@@ -125,17 +126,31 @@ class App extends Component {
       return undefined
     }
 
+    let comention = this.state.comention
+    if (this.state.comentionHover !== undefined) {
+      comention = this.state.comentionHover
+    }
+
     let positives = []
     let negatives = []
+    let _positives = []
+    let _negatives = []
     this.props.bookmarks.forEach((bookmark, idx) => {
       let index = this._getIndex(this.props.focus, idx)
       index.map((start, idx) => { 
         if (idx !== 0 && start - index[idx-1] > WinSize) {
           return
         }
-        let sentiment = Sentimood.analyze(bookmark.fulltext.slice(Math.max(0, start - WinSize), start + WinSize).join(' '))
+        let tokens = bookmark.fulltext.slice(Math.max(0, start - WinSize), start + WinSize)
+        let sentiment = Sentimood.analyze(tokens.join(' '))
         positives = positives.concat(sentiment.positive.words)
         negatives = negatives.concat(sentiment.negative.words)
+        if (comention !== undefined) {
+          if(tokens.map((t) => t.toLowerCase()).indexOf(comention) >= 0) {
+            _positives = _positives.concat(sentiment.positive.words)
+            _negatives = _negatives.concat(sentiment.negative.words)
+          }
+        }
       })
     })
     positives = countBy(positives)
@@ -152,8 +167,35 @@ class App extends Component {
     })
     negatives = sortBy(negatives, (p) => p[1])
 
-    return [positives, negatives]
+    let max = 0
+    positives.forEach((token_score) => {
+      let score = token_score[1]
+      max = Math.max(Math.abs(score), max)
+    })
+    negatives.forEach((token_score) => {
+      let score = token_score[1]
+      max = Math.max(Math.abs(score), max)
+    })
 
+    if (comention !== undefined) {
+      _positives = countBy(_positives)
+      _positives = Object.keys(_positives).map((token) => {
+        let count = _positives[token]
+        return [token, count * AFINN[token]]
+      })
+      _positives = zipObject(_positives.map((p) => p[0]), _positives.map((p) => p[1]))
+      positives = positives.map((p) => [p[0], get(_positives, p[0], 0)])
+
+      _negatives = countBy(_negatives)
+      _negatives = Object.keys(_negatives).map((token) => {
+        let count = _negatives[token]
+        return [token, count * AFINN[token]]
+      })
+      _negatives = zipObject(_negatives.map((p) => p[0]), _negatives.map((p) => p[1]))
+      negatives = negatives.map((p) => [p[0], get(_negatives, p[0], 0)])
+    }
+
+    return [positives, negatives, max]
   }
 
   getDesc(idx) {
@@ -205,21 +247,25 @@ class App extends Component {
         return {
           name: token,
           score: count,
-          weight: count
+          weight: count,
+          highlight: token === this.state.comentionHover || (this.state.comentionHover === undefined && token === this.state.comention)
         }
       })
     }
 
-    let sentiment = this.getSentiment()
+    let sentiment
     let max = 0
     if (this.props.focus !== undefined) {
-      sentiment = sentiment.map((s) => s.map((token_score) => {
+      sentiment = this.getSentiment()
+      max = sentiment[2]
+      sentiment = sentiment.slice(0,2).map((s) => s.map((token_score) => {
         let token = token_score[0]
         let score = token_score[1]
         max = Math.max(Math.abs(score), max)
         return {x: token, y: Math.abs(score)}
       }))
     }
+
 
     return (<React.Fragment><CssBaseline />
 			<Grid container spacing={8} alignItems='flex-end' style={{padding: '12px 32px 24px 24px'}}>
@@ -270,20 +316,31 @@ class App extends Component {
                 labelColor={'black'} fontSize={14} scoreInLabel={false}
                 falseinnerPadding={4} corner={2} stroke={false}
                 style={{}}
-                data={comentions} onItemClick={(event, d) => {}}/>
+                data={comentions} onItemHover={(event, d, hover) => {
+                  if (hover === true)
+                    this.setState({comentionHover: d.name})
+                  else
+                    this.setState({comentionHover: undefined})
+                }}
+                data={comentions} onItemClick={(event, d) => {
+                  if (this.state.comention === d.name)
+                    this.setState({comention: undefined})
+                  else
+                    this.setState({comention: d.name})
+                }}/>
             </div>
           )}
           {this.props.focus !== undefined && (
             <div key='entity_sentiment_container' style={{marginLeft: '24px'}}>
               <div style={{color: 'white', fontSize: '1.1em'}}>Sentiment</div>
               <div>
-                <BarChart width={30 * sentiment[0].length} height={160} color={red[200]}
+                <BarChart width={45 * sentiment[0].length} height={160} color={green[200]}
                   max={max}
-                  data={sentiment[0]} onItemClick={(event, d) => {}}/>
+                  data={sentiment[0]} onClick={(event, d) => {}}/>
                 <div style={{transform: 'scaleY(-1)'}}>
-                  <BarChart width={30 * sentiment[1].length} height={160} color={green[200]}
+                  <BarChart width={45 * sentiment[1].length} height={160} color={red[200]}
                     max={max}
-                    data={sentiment[1]} onItemClick={(event, d) => {}}/>
+                    data={sentiment[1]} onClick={(event, d) => {}}/>
                 </div>
               </div>
             </div>

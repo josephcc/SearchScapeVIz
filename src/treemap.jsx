@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import red from 'material-ui/colors/red'
+import purple from 'material-ui/colors/purple'
 import textures from 'textures'
 
 import { sumBy } from 'lodash'
@@ -138,7 +140,7 @@ export default class TreeMap extends React.Component {
         .attr('ry', this.props.corner)
         .attr('stroke', (d) => {
           if (d.data.highlight === true) {
-            return 'red'
+            return purple['A100']
           }
           return this.props.strokeColor
         })
@@ -153,6 +155,9 @@ export default class TreeMap extends React.Component {
         })
       .on('click', (d, e) => {
         this.props.onItemClick(currentEvent, d.data)
+      })
+      .on('mouseover', (d, e) => {
+        this.props.onItemHover(currentEvent, d.data, true)
       })
 
     if (this.init === true) {
@@ -208,6 +213,7 @@ export default class TreeMap extends React.Component {
         .attr("x", (d) => d.x0*wratio + ((d.x1 - d.x0)*wratio/2))
         .attr("y", (d) => d.y0*hratio + ((d.y1 - d.y0)*hratio/2))
         .on('click', (d) => this.props.onItemClick(currentEvent, d.data))
+        .on('mouseover', (d) => this.props.onItemHover(currentEvent, d.data, true))
         .text((d) => {
           if(this.props.scoreInLabel === true) {
             return `${d.data.name} (${Math.round(d.data.score)})`
@@ -275,6 +281,11 @@ export default class TreeMap extends React.Component {
   }
 
   render() {
-    return (<div className='treemap' ref='treemap' style={{display: 'inline-block', backgroundColor: this.props.background}}></div>)
+    return (<div
+      className='treemap'
+      ref='treemap'
+      style={{display: 'inline-block', backgroundColor: this.props.background}}
+      onMouseLeave={this.props.onItemHover.bind(this, currentEvent, undefined, false)}
+    />)
   }
 }

@@ -264,10 +264,12 @@ class App extends Component {
 
       <FlipMove duration={700} easing="ease-in-out" leaveAnimation='none' style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
 				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
-          if (this.state.focus === undefined || this.state.focus === tag)
+          if ((this.state.focus === undefined || this.state.focus === tag ) && 
+            this.props.table[tag] != undefined)
           return (
             <WikipediaCard
               entityName={tag}
+              percentageBar = { Object.keys(this.props.table[tag]).length / this.props.bookmarks.length}
               selected={tag === this.state.focus}
               onExploreEntity={this.handleExploreEntity.bind(this, tag)}
               onCancel={() => this.setState({focus: undefined})}

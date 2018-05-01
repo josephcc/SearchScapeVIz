@@ -61,14 +61,27 @@ class WikipediaCard extends Component {
     });
   }
 
+
+
+
   render() {
     return (
       <div key={this.props.key} style={{zIndex: '999'}}>
+
       <Card style={{margin: '12px', minWidth: '250px', maxWidth: '250px', height: '350px'}}>
+        <div style={{background:'steelblue', width: '10px', height: '350px', position: 'absolute'}}>
+          <div style={{ background: "lightgray", height: (1 - this.props.percentageBar)*350}}> 
+
+          </div>
+        </div>
+
         <CardMedia
           style={{height: '150px', backgroundRepeat: 'no-repeat', backgroundPosition: 'center center'}}
           image={this.state.image}
           title={this.props.entityName}
+ 
+              
+
         />
         <CardContent>
           <Typography gutterBottom variant='headline' component='h4' style={{whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden'}}>
@@ -77,6 +90,7 @@ class WikipediaCard extends Component {
           <Typography component='p' style={{height: '80px', overflow: 'hidden', textOverflow: 'ellipsis'}}>
             { this.state.desc.replace(/\s*\([^)]*\)+\s*/, ' ') }
           </Typography>
+
         </CardContent>
         { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>

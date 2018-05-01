@@ -379,7 +379,7 @@ class App extends Component {
               sentiment={totalSentimentMap[tag]}
               tab={this.props.tab}
               onCancel={() => this.setState({focus: undefined})}
-              key={`cluster.${this.props.tab}.${idx}`}/>
+              key={`wiki.${tag}`}/>
           )
 				})}
       </FlipMove>

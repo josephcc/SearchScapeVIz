@@ -13,6 +13,12 @@ import grey from 'material-ui/colors/grey'
 
 import { get } from 'lodash'
 
+import {Link} from 'react-router-dom'
+
+const SimpleLink = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
+`
 
 class WikipediaCard extends Component {
   static defaultProps = {
@@ -94,15 +100,19 @@ class WikipediaCard extends Component {
         </CardContent>
         { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>
-            <Button onClick={this.props.onExploreEntity} size='small' variant="raised" color="primary">
-              See mention
-            </Button>
+            <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}/${this.props.entityName}`}>
+              <Button size='small' variant="raised" color="primary">
+                See mention
+              </Button>
+            </SimpleLink>
           </CardActions>
         ) : (
           <CardActions>
-            <Button onClick={this.props.onCancel} size='small' color="secondary">
-              Cancel
-            </Button>
+            <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
+              <Button size='small' color="secondary">
+                Cancel
+              </Button>
+            </SimpleLink>
           </CardActions>
         )
         )}

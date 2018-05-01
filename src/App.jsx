@@ -27,11 +27,7 @@ import lightBlue from 'material-ui/colors/lightBlue'
 import WikipediaCard from './wikipedia_card.jsx'
 import TreeMap from './treemap.jsx'
 import BarChart from './bar_chart.jsx'
-
-//import data from './barcelona.json'
-//import data from './angelina_jolie.json'
-//import data from './obama.json'
-import data from './er.json'
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import { uniq, flatten, countBy, sortBy } from 'lodash'
 
@@ -70,23 +66,16 @@ text-decoration: none;
 }
 `
 
+const SimpleLink = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
+`
+
 class App extends Component {
-  static defaultProps = {
-    ...data
-  }
 
   constructor(props) {
     super(props)
-    this.state = {
-      focus: undefined,
-      selectedTab: 0
-    }
   }
-
-	handleExploreEntity(tag) {
-    console.log(tag)
-    this.setState({focus: tag})
-	}
 
   getComentionCounts(tag) {
     let index
@@ -134,14 +123,14 @@ class App extends Component {
   }
 
   getSentiment() {
-    if (this.state.focus === undefined) {
+    if (this.props.focus === undefined) {
       return undefined
     }
 
     let positives = []
     let negatives = []
     this.props.bookmarks.forEach((bookmark, idx) => {
-      let index = this._getIndex(this.state.focus, idx)
+      let index = this._getIndex(this.props.focus, idx)
       index.map((start, idx) => { 
         if (idx !== 0 && start - index[idx-1] > WinSize) {
           return
@@ -171,10 +160,10 @@ class App extends Component {
 
   getDesc(idx) {
     let bookmark = this.props.bookmarks[idx]
-    if (this.state.focus === undefined) {
+    if (this.props.focus === undefined) {
       return bookmark.desc
     }
-    let index = this._getIndex(this.state.focus, idx)
+    let index = this._getIndex(this.props.focus, idx)
 
     return (
       <span>
@@ -196,8 +185,8 @@ class App extends Component {
 
   render() {
     let index = undefined
-    if (this.state.focus !== undefined) {
-      index = this.props.table[this.state.focus.toLowerCase()]
+    if (this.props.focus !== undefined) {
+      index = this.props.table[this.props.focus.toLowerCase()]
     }
 
 
@@ -208,8 +197,8 @@ class App extends Component {
       weight: 1,
       children: []
     }
-    if (this.state.focus !== undefined) {
-      comentions.children = this.getComentionCounts(this.state.focus)
+    if (this.props.focus !== undefined) {
+      comentions.children = this.getComentionCounts(this.props.focus)
         .filter((t) => t[1] >= 2)
         .slice(0, 9)
         .map((token_count) => {
@@ -225,7 +214,7 @@ class App extends Component {
 
     let sentiment = this.getSentiment()
     let max = 0
-    if (this.state.focus !== undefined) {
+    if (this.props.focus !== undefined) {
       sentiment = sentiment.map((s) => s.map((token_score) => {
         let token = token_score[0]
         let score = token_score[1]
@@ -247,39 +236,42 @@ class App extends Component {
       
       <AppBar position="static" color="default">
 				<Tabs
-					value={this.state.selectedTab}
+					value={this.props.tab}
 					onChange={this.handleChange}
 					indicatorColor="secondary"
 					textColor="primary"
 					scrollable
 					scrollButtons="auto"
 				>
-          {this.props.clusters.map((cluster, idx) => {
-            return (<Tab label={
-              cluster.name.replace(/^ *YAGO_yago/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '').replace(/_+/g, ' ').trim()
-            } onClick={() => this.setState({selectedTab: idx})} key={`clusterTab.${idx}`}/>)
-          })}
+          {this.props.clusters.map((cluster, idx) => 
+            <SimpleLink to={`/${this.props.dataKey}/${idx}`} key={`clusterTab.${idx}`}>
+              <Tab label={
+                cluster.name.replace(/^ *YAGO_yago/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '').replace(/_+/g, ' ').trim()
+              }/>
+            </SimpleLink>
+          )}
         </Tabs>
       </AppBar>
 
       <FlipMove duration={700} easing="ease-in-out" leaveAnimation='none' style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
-				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
-          if ((this.state.focus === undefined || this.state.focus === tag ) && 
+				{ this.props.clusters[this.props.tab].tags.map((tag, idx) => {
+          if ((this.props.focus === undefined || this.props.focus === tag ) && 
             this.props.table[tag] != undefined)
           return (
             <WikipediaCard
               entityName={tag}
               percentageBar = { Object.keys(this.props.table[tag]).length / this.props.bookmarks.length}
-              selected={tag === this.state.focus}
-              onExploreEntity={this.handleExploreEntity.bind(this, tag)}
+              selected={tag === this.props.focus}
+              dataKey={this.props.dataKey}
+              tab={this.props.tab}
               onCancel={() => this.setState({focus: undefined})}
-              key={`cluster.${this.state.selectedTab}.${idx}`}/>
+              key={`cluster.${this.props.tab}.${idx}`}/>
           )
 				})}
       </FlipMove>
       <div style={{position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px'}} key='entity_global_viz_container'>
         <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade' style={{display: 'flex'}}>
-          {this.state.focus !== undefined && (
+          {this.props.focus !== undefined && (
             <div key='entity_comention_container'>
               <div style={{color: 'white', fontSize: '1.1em'}}>Related Terms</div>
               <TreeMap width={200} height={332} transitionDuration={0} customScale={false}
@@ -289,7 +281,7 @@ class App extends Component {
                 data={comentions} onItemClick={(event, d) => {}}/>
             </div>
           )}
-          {this.state.focus !== undefined && (
+          {this.props.focus !== undefined && (
             <div key='entity_sentiment_container' style={{marginLeft: '24px'}}>
               <div style={{color: 'white', fontSize: '1.1em'}}>Sentiment</div>
               <div>
@@ -311,10 +303,12 @@ class App extends Component {
 
         <div style={{padding: '32px', maxWidth: '600px'}}>
           <Grid container spacing={24}>
-            { this.state.focus !== undefined && (
+            { this.props.focus !== undefined && (
               <Grid item xs={12}>
-                <SnackbarContent message={`Showing mentions of "${this.state.focus}".`} action={(
-                  <Button color="secondary" size="small" onClick={() => this.setState({focus: undefined})}>Cancel</Button>
+                <SnackbarContent message={`Showing mentions of "${this.props.focus}".`} action={(
+                  <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
+                    <Button color="secondary" size="small">Cancel</Button>
+                  </SimpleLink>
                 )} />
               </Grid>
             )}

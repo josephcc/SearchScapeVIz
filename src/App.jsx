@@ -66,13 +66,15 @@ text-decoration: none;
 }
 `
 
+const SimpleLink = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
+`
+
 class App extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {
-      selectedTab: 0
-    }
   }
 
   getComentionCounts(tag) {
@@ -234,30 +236,33 @@ class App extends Component {
       
       <AppBar position="static" color="default">
 				<Tabs
-					value={this.state.selectedTab}
+					value={this.props.tab}
 					onChange={this.handleChange}
 					indicatorColor="secondary"
 					textColor="primary"
 					scrollable
 					scrollButtons="auto"
 				>
-          {this.props.clusters.map((cluster, idx) => {
-            return (<Tab label={
-              cluster.name.replace(/^ *YAGO_yago/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '').replace(/_+/g, ' ').trim()
-            } onClick={() => this.setState({selectedTab: idx})} key={`clusterTab.${idx}`}/>)
-          })}
+          {this.props.clusters.map((cluster, idx) => 
+            <SimpleLink to={`/${this.props.dataKey}/${idx}`} key={`clusterTab.${idx}`}>
+              <Tab label={
+                cluster.name.replace(/^ *YAGO_yago/, '').replace(/^ *YAGO_[^_]+_/, '').replace(/ *\([^)]+\)/, '').replace(/_[0-9]*$/, '').replace(/_+/g, ' ').trim()
+              }/>
+            </SimpleLink>
+          )}
         </Tabs>
       </AppBar>
 
       <FlipMove duration={700} easing="ease-in-out" leaveAnimation='none' style={{display: 'flex', overflowX: 'auto', background: grey[800], padding: '8px', margin: '0px', minWidth: '100%'}}>
-				{ this.props.clusters[this.state.selectedTab].tags.map((tag, idx) => {
+				{ this.props.clusters[this.props.tab].tags.map((tag, idx) => {
           if (this.props.focus === undefined || this.props.focus === tag)
           return (
             <WikipediaCard
               entityName={tag}
               selected={tag === this.props.focus}
-              location={this.props.location}
-              key={`cluster.${this.state.selectedTab}.${idx}`}/>
+              dataKey={this.props.dataKey}
+              tab={this.props.tab}
+              key={`cluster.${this.props.tab}.${idx}`}/>
           )
 				})}
       </FlipMove>
@@ -298,7 +303,9 @@ class App extends Component {
             { this.props.focus !== undefined && (
               <Grid item xs={12}>
                 <SnackbarContent message={`Showing mentions of "${this.props.focus}".`} action={(
-                  <Button color="secondary" size="small" onClick={() => this.setState({focus: undefined})}>Cancel</Button>
+                  <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
+                    <Button color="secondary" size="small">Cancel</Button>
+                  </SimpleLink>
                 )} />
               </Grid>
             )}

@@ -15,6 +15,11 @@ import { get } from 'lodash'
 
 import {Link} from 'react-router-dom'
 
+const SimpleLink = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
+`
+
 class WikipediaCard extends Component {
   static defaultProps = {
   }
@@ -81,19 +86,19 @@ class WikipediaCard extends Component {
         </CardContent>
         { this.state.loaded && ( this.props.selected !== true ? (
           <CardActions>
-            <Link to={`${this.props.location.pathname}/tag/${this.props.entityName}`}>
+            <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}/${this.props.entityName}`}>
               <Button size='small' variant="raised" color="primary">
                 See mention
               </Button>
-            </Link>
+            </SimpleLink>
           </CardActions>
         ) : (
           <CardActions>
-            <Link to={this.props.location.pathname}>
+            <SimpleLink to={`/${this.props.dataKey}/${this.props.tab}`}>
               <Button size='small' color="secondary">
                 Cancel
               </Button>
-            </Link>
+            </SimpleLink>
           </CardActions>
         )
         )}

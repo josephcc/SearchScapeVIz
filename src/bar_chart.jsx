@@ -64,20 +64,6 @@ export default class BarChart extends React.Component {
       .range([0, (height - 4)/2])
 
 
-    this.labels = this.svg.selectAll(".label")
-        .data(this.props.data)
-    this.labels.exit().remove()
-
-
-    this.labels = this.labels
-      .enter().append("text")
-      .merge(this.labels)
-      .attr("class", "label hoverPointer")
-      .attr("x", (d) => this.x(d.x)+2)
-    //.attr("y", (d) => 0+2 + height - (this.y(d.y)*2))
-      .attr("y", height - 4)
-      .text((d) => d.x)
-
     this.bars = this.svg.selectAll(".bar")
       .data(this.props.data)
     this.bars.exit().remove()
@@ -96,6 +82,23 @@ export default class BarChart extends React.Component {
       .attr("width", (d) => this.x.bandwidth()-4)
       .attr("height", (d) => this.y(d.y) * 2)
       .attr("fill", this.props.color)
+
+    this.labels = this.svg.selectAll(".label")
+        .data(this.props.data)
+    this.labels.exit().remove()
+
+
+    this.labels = this.labels
+      .enter().append("text")
+      .merge(this.labels)
+      .attr("class", "label hoverPointer")
+      .attr("x", (d) => this.x(d.x) + (this.x.bandwidth()/2) + 4)
+      .attr("y", height - 4)
+      .attr('font-weight', 'bold')
+      .attr('fill', 'white')
+      .attr("transform", (d) => `rotate(-90 ${this.x(d.x) + (this.x.bandwidth()/2) + 4} ${height - 4})`)
+      .text((d) => d.x)
+
   }
 
   updateD3() {

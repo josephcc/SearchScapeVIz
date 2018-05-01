@@ -24,7 +24,7 @@ export default class SentimentBubble extends React.Component {
 
   componentDidMount() {
     let {polarity, max, min, negative, positive, name} = this.props;
-    name = name.replace(/\s/g, "");
+    name = name.replace(/[^a-zA-Z]/g, "");
     var r = (this.normalize(polarity, max, min) * maxR) + 10;
     var total = negative + positive;
     var percent = Math.trunc((positive / total) * 100) || 0;

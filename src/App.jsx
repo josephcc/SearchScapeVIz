@@ -313,16 +313,22 @@ class App extends Component {
 				<Grid item xs={4}>
                   <SelectField value={this.props.dataKey} onChange={e => this.props.history.push(`/${e.target.value}`)}>
                     <MenuItem value="obama">
-                      Obama Family
+                      Obama family tree
                     </MenuItem>
                     <MenuItem value="barcelona">
-                      Barcelona Daytrips
+                      Daytrips from Barcelona
                     </MenuItem>
                     <MenuItem value="er">
                       ER TV Show
                     </MenuItem>
                     <MenuItem value="angelina">
                       Angelina Jolie
+                    </MenuItem>
+                    <MenuItem value="harry">
+                      Harry Potter
+                    </MenuItem>
+                    <MenuItem value="election">
+                      2016 presidential election
                     </MenuItem>
                   </SelectField>
 				</Grid>

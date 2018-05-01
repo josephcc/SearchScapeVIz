@@ -281,7 +281,7 @@ class App extends Component {
 					<Search/>
 				</Grid>
 				<Grid item xs={4}>
-					<TextField id='input-with-icon-grid' label='Search the Web' value='Day trips from Barcelona' style={{width: '100%'}} disabled/>
+					<TextField id='input-with-icon-grid' label='Search the Web' value={this.props.query} style={{width: '100%'}} disabled/>
 				</Grid>
 			</Grid>
 

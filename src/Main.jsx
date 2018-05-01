@@ -9,6 +9,12 @@ import obama from './data/obama.json'
 import er from './data/er.json'
 
 const data = {barcelona, angelina, obama, er}
+const queries = {
+  barcelona: "Day trips from Barcelona",
+  angelina: "Angelina Jolie",
+  obama: "Barack Obama family tree",
+  er: "tv show ER"
+}
 export default class Main extends React.Component {
   
   render() {
@@ -16,8 +22,10 @@ export default class Main extends React.Component {
       <Switch>
         <Route path={`/:data(${Object.keys(data).join("|")})/:tab?/:tag?`} render={props => {
           let focus = props.match.params.tag
-          let tab = props.match.params.tab || 0                                                                        
-          return <App {...data[props.match.params.data]} {...props} focus={focus} tab={tab} dataKey={props.match.params.data}/>
+          let tab = props.match.params.tab || 0     
+          let dataSet = props.match.params.data
+          
+          return <App {...data[dataSet]} {...props} focus={focus} tab={tab} dataKey={props.match.params.data} query={queries[dataSet]}/>
         }}/>
         <Route component={NoMatch} />
       </Switch>

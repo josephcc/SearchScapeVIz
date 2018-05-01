@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import App from "./App"
 import NoMatch from './NoMatch'
 
-import barcelona from './barcelona.json'
-import angelina from './angelina_jolie.json'
-import obama from './obama.json'
-import er from './er.json'
+import barcelona from './data/barcelona.json'
+import angelina from './data/angelina_jolie.json'
+import obama from './data/obama.json'
+import er from './data/er.json'
 
 const data = {barcelona, angelina, obama, er}
 export default class Main extends React.Component {

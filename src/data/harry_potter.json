@@ -192659,50 +192659,15 @@
   },
   "clusters" : [
     {
-      "name" : "YAGO_wordnet_person_100007846 (score: 31.1)",
+      "name" : "YAGO_wordnet_actor_109765278 (score: 7.6)",
       "tags" : [
-        "J. K. Rowling",
-        "James I of England",
-        "Lily Allen",
-        "William McGonagall",
-        "Dobby Walker",
-        "Jack Thorne (writer)",
-        "John Kerr Tiffany",
-        "Neville Chamberlain",
-        "Godric of Finchale",
-        "Micky Moody",
-        "George Harrison",
-        "James Potter",
         "Rupert Grint",
-        "Fred Astaire",
-        "Johnny Depp",
-        "Emma Watson",
         "Jude Law",
-        "Alan Rickman",
+        "Johnny Depp",
         "Richard Harris",
-        "J. Johnston Pettigrew",
-        "John Dudley, 1st Duke of Northumberland",
         "Daniel Radcliffe"
       ],
-      "score" : 31.088675251463393,
-      "editable" : false
-    },
-    {
-      "name" : "YAGO_wikicategory_Living_people (score: 18.1)",
-      "tags" : [
-        "J. K. Rowling",
-        "Lily Allen",
-        "Dobby Walker",
-        "Jack Thorne (writer)",
-        "Micky Moody",
-        "Rupert Grint",
-        "Jude Law",
-        "Emma Watson",
-        "Alan Rickman",
-        "Johnny Depp",
-        "Daniel Radcliffe"
-      ],
-      "score" : 18.117927595079472,
+      "score" : 7.588002692415278,
       "editable" : false
     },
     {
@@ -192717,19 +192682,6 @@
         "Death Eater"
       ],
       "score" : 12.594154762707742,
-      "editable" : false
-    },
-    {
-      "name" : "YAGO_wordnet_actor_109765278 (score: 7.6)",
-      "tags" : [
-        "Fred Astaire",
-        "Rupert Grint",
-        "Jude Law",
-        "Johnny Depp",
-        "Richard Harris",
-        "Daniel Radcliffe"
-      ],
-      "score" : 7.588002692415278,
       "editable" : false
     },
     {

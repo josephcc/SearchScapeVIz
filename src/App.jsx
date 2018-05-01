@@ -31,7 +31,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import { uniq, flatten, countBy, sortBy, zipObject, get } from 'lodash'
 
-const WinSize = 15
+const WinSize = 20
 const Stopwords = ['me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', 'day', 'trip', 'trips', 'barcelona', 'spain', 'one', 'many', 'two', 'three', 'varies', 'very', 'take', 'get', 'best', 'also', 'visit']
 
 const Title = styled(({className, children, ...props}) => (
@@ -317,7 +317,7 @@ class App extends Component {
           )
 				})}
       </FlipMove>
-      <div style={{position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px'}} key='entity_global_viz_container'>
+      <div style={{display: (this.props.focus === undefined ? 'none' : 'block'), position: 'relative', top: '-371px', marginBottom: '-371px', left: '300px', width: 'calc(100vw - 300px)', overflow: 'hidden'}} key='entity_global_viz_container'>
         <FlipMove duration={350} easing="ease-in-out" leaveAnimation='none' enterAnimation='fade' style={{display: 'flex'}}>
           {this.props.focus !== undefined && (
             <div key='entity_comention_container'>

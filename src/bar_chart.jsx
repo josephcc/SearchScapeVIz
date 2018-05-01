@@ -59,7 +59,7 @@ export default class BarChart extends React.Component {
         .padding(0.0)
         .domain(this.props.data.map((d) => d.x))
 
-    this.y = d3.scaleLinear()
+    this.y = d3.scaleSqrt()
       .domain([0, this.props.max])
       .range([0, (height - 4)/2])
 

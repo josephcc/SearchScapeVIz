@@ -25,7 +25,7 @@ The video giving a brief overview of how SearchScape works is [on youtube](https
 
 #### Repo Structure
 
-All code and data in the [/src](src) directory are our own work, while any linked libraries can be found in the [package.json](package.json) file. The main entry point into the application is the [src/index.js](src/index.js) file, and the 4 different datasets we generated and use are found in the [src/data](src/data) directory. 
+All code and data in the [/src](src) directory are our own work, while any linked libraries can be found in the [package.json](package.json) file. The main entry point into the application is the [src/index.js](src/index.js) file, and the 6 different datasets we generated and use are found in the [src/data](src/data) directory. 
 
 #### Running Locally
 
